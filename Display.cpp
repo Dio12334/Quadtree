@@ -13,9 +13,8 @@
 
 Display::Display(): isRunning(false), window(nullptr), renderer(nullptr), quad(nullptr){}
 
-bool Display::initialize(){
+bool Display::initialize(int dim){
     int sdlResult = SDL_Init(SDL_INIT_VIDEO);
-    double dim = 800;
     if(sdlResult != 0){
         SDL_Log("No se pudo inicializar SDL: %s", SDL_GetError());
         return false;

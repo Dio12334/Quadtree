@@ -2,7 +2,7 @@
 #include <SDL2/SDL_render.h>
 #include <iostream>
 
-Quadtree::Quadtree(AABB boundary): 
+Quadtree::Quadtree(AABB boundary, size_t maxCapacity_): 
     size(0),
     boundary(boundary),
     noreste(nullptr),
@@ -10,6 +10,7 @@ Quadtree::Quadtree(AABB boundary):
     sureste(nullptr),
     suroeste(nullptr)
     {
+        maxCapacity = maxCapacity_;
         points.reserve(maxCapacity);
     }
 
@@ -45,10 +46,10 @@ void Quadtree::subdivide(){
     AABB se({boundary.center.x + boundary.halfDimension/2, boundary.center.y + boundary.halfDimension/2}, boundary.halfDimension/2);
     AABB so({boundary.center.x - boundary.halfDimension/2, boundary.center.y + boundary.halfDimension/2}, boundary.halfDimension/2);
 
-    noreste = new Quadtree(ne);
-    noroeste = new Quadtree(no);
-    sureste = new Quadtree(se);
-    suroeste = new Quadtree(so);
+    noreste = new Quadtree(ne, maxCapacity);
+    noroeste = new Quadtree(no, maxCapacity);
+    sureste = new Quadtree(se, maxCapacity);
+    suroeste = new Quadtree(so, maxCapacity);
 
     for(auto& point: points){
         if(ne.containsPoint(point))

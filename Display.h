@@ -9,7 +9,7 @@ class Display{
     public:
 
         Display();
-        bool initialize();
+        bool initialize(int);
         void runLoop();
         void shutdown();
 

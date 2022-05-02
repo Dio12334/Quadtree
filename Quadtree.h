@@ -9,7 +9,7 @@
 class Quadtree{
 
     public:
-        Quadtree(AABB boundary);
+        Quadtree(AABB boundary, size_t = 1);
         bool insert(Point p);
         void draw(SDL_Renderer* renderer);
 
@@ -17,7 +17,7 @@ class Quadtree{
         
         void subdivide();
 
-        static constexpr size_t maxCapacity = 1;
+        size_t maxCapacity;
         size_t size;
         
         AABB boundary;
