@@ -3,6 +3,7 @@
 
 #include <SDL2/SDL.h>
 
+
 struct Point{
 
     double x;
@@ -11,8 +12,8 @@ struct Point{
     Point(double x, double y);
     void draw(SDL_Renderer* renderer);
 
-    bool operator == (const Point& p){
-        return (p.x == x && p.y == y);
+    friend bool operator==(const Point& left, const Point& right) {
+        return left.x == right.x && left.y == right.y;
     }
 };
 

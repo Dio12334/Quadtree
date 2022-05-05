@@ -20,6 +20,7 @@ class Quadtree{
         void subdivide();
         void join();
 
+
         size_t maxCapacity;
         size_t size;
         

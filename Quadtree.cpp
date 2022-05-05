@@ -22,10 +22,8 @@ bool Quadtree::insert(Point p){
         return false;
     if(points.size() < maxCapacity && !noreste){
         //chequeamos que el punto no a sido insertado antes
-        for(const auto& point: points){
-            if(p == point)
-                return false;
-        } 
+        if(std::find(points.cbegin(), points.cend(), p) != points.cend())      
+            return false;
         //en caso no haya sido insertado, insertamos
         points.emplace_back(p);
         ++size;
@@ -33,9 +31,8 @@ bool Quadtree::insert(Point p){
     }
     if(points.size() == maxCapacity){
         //Chequeamos que el punto no a sido insertado antes
-        for(const auto& point : points)
-            if(p == point)
-                return false;
+        if(std::find(points.cbegin(), points.cend(), p) != points.cend())       
+            return false;
     }
     if(!noreste)
         // si el area ya esta llena de puntos particionamos esa area
@@ -53,22 +50,24 @@ bool Quadtree::remove(Point p){
         return false;
     if(points.size() <= maxCapacity && !noreste){
         // buscamos el punto y lo eliminamos
-        for(auto i = points.begin(); i != points.end(); ++i)
-            if(p == *i){
-                points.erase(i);
-                --size;
-                return true;
-            }
+        auto it = std::find(points.begin(), points.end(), p);
+        if(it != points.end()){
+            points.erase(it);
+            --size;
+            return true;
+        }
         return false;
     }
     else if(noreste){
         // chequeamos sus particiones
-        if(noreste->remove(p) || noroeste->remove(p) || sureste->remove(p) || suroeste->remove(p))
+        if(noreste->remove(p) || noroeste->remove(p) || sureste->remove(p) || suroeste->remove(p)){
             --size;
-        if(size <= maxCapacity)
-            join();
+            if(size <= maxCapacity)
+                join();
+            return true;
+        }
     }
-    return true;
+    return false;
 }
 
 void Quadtree::subdivide(){
