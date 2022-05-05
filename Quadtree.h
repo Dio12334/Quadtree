@@ -9,18 +9,22 @@
 class Quadtree{
 
     public:
-        Quadtree(AABB boundary, size_t = 1);
+        Quadtree(AABB boundary, size_t maxCapacity_ = 1, Quadtree* father = nullptr);
         bool insert(Point p);
+        bool remove(Point p);
         void draw(SDL_Renderer* renderer);
+        void addPoint(Point p);
 
     private:
         
         void subdivide();
+        void join();
 
         size_t maxCapacity;
         size_t size;
         
         AABB boundary;
+        Quadtree* father;
         Quadtree* noreste;
         Quadtree* noroeste;
         Quadtree* sureste;

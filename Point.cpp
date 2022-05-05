@@ -9,8 +9,8 @@ void Point::draw(SDL_Renderer* renderer){
     SDL_Rect dot{
         static_cast<int>(x - dim),
         static_cast<int>(y - dim),
-        2*dim,
-        2*dim
+        3*dim,
+        3*dim
     };
     SDL_RenderFillRect(renderer, &dot);
 }

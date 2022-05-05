@@ -9,7 +9,7 @@ class Display{
     public:
 
         Display();
-        bool initialize(int);
+        bool initialize(double dim);
         void runLoop();
         void shutdown();
 

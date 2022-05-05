@@ -1,16 +1,19 @@
 #include "Quadtree.h"
 #include <SDL2/SDL_render.h>
 #include <iostream>
+#include <cmath>
+#include <algorithm>
 
-Quadtree::Quadtree(AABB boundary, size_t maxCapacity_): 
+Quadtree::Quadtree(AABB boundary, size_t maxCapacity_, Quadtree* father): 
+    maxCapacity(maxCapacity_),
     size(0),
     boundary(boundary),
+    father(father),
     noreste(nullptr),
     noroeste(nullptr),
     sureste(nullptr),
     suroeste(nullptr)
     {
-        maxCapacity = maxCapacity_;
         points.reserve(maxCapacity);
     }
 
@@ -18,77 +21,147 @@ bool Quadtree::insert(Point p){
     if(!boundary.containsPoint(p))
         return false;
     if(points.size() < maxCapacity && !noreste){
-        for(auto i = points.cbegin(); i != points.cend(); i++){
-            if(i->x == p.x && i->y == p.y)
+        //chequeamos que el punto no a sido insertado antes
+        for(const auto& point: points){
+            if(p == point)
                 return false;
         } 
+        //en caso no haya sido insertado, insertamos
         points.emplace_back(p);
+        ++size;
         return true;
     }
     if(points.size() == maxCapacity){
-        for(auto& point : points)
-            if(point.x == p.x && point.y == p.y)
+        //Chequeamos que el punto no a sido insertado antes
+        for(const auto& point : points)
+            if(p == point)
                 return false;
     }
     if(!noreste)
+        // si el area ya esta llena de puntos particionamos esa area
         subdivide();
-    if(noreste->insert(p)) return true;
-    if(noroeste->insert(p)) return true;
-    if(sureste->insert(p)) return true;
-    if(suroeste->insert(p)) return true;
+    // insertamos el punto en el area que corresponde
+    if(noreste->insert(p) || noroeste->insert(p) || sureste->insert(p) || suroeste->insert(p)){
+        ++size;
+        return true;
+    }
     return false;
 }
 
+bool Quadtree::remove(Point p){
+    if(!boundary.containsPoint(p))
+        return false;
+    if(points.size() <= maxCapacity && !noreste){
+        // buscamos el punto y lo eliminamos
+        for(auto i = points.begin(); i != points.end(); ++i)
+            if(p == *i){
+                points.erase(i);
+                --size;
+                return true;
+            }
+        return false;
+    }
+    else if(noreste){
+        // chequeamos sus particiones
+        if(noreste->remove(p) || noroeste->remove(p) || sureste->remove(p) || suroeste->remove(p))
+            --size;
+        if(size <= maxCapacity)
+            join();
+    }
+    return true;
+}
+
 void Quadtree::subdivide(){
+    double centerX = boundary.center.x, centerY = boundary.center.y;
+    double halfDimension = boundary.halfDimension;
 
-    AABB ne({boundary.center.x + boundary.halfDimension/2, boundary.center.y - boundary.halfDimension/2}, boundary.halfDimension/2);
-    AABB no({boundary.center.x - boundary.halfDimension/2, boundary.center.y - boundary.halfDimension/2}, boundary.halfDimension/2);
-    AABB se({boundary.center.x + boundary.halfDimension/2, boundary.center.y + boundary.halfDimension/2}, boundary.halfDimension/2);
-    AABB so({boundary.center.x - boundary.halfDimension/2, boundary.center.y + boundary.halfDimension/2}, boundary.halfDimension/2);
+    // creamos las 4 sub areas
+    AABB ne({centerX + halfDimension/2, centerY - halfDimension/2}, halfDimension/2);
+    AABB no({centerX - halfDimension/2, centerY - halfDimension/2}, halfDimension/2);
+    AABB se({centerX + halfDimension/2, centerY + halfDimension/2}, halfDimension/2);
+    AABB so({centerX - halfDimension/2, centerY + halfDimension/2}, halfDimension/2);
+    
+    // las agregamos al quadtree
+    noreste = new Quadtree(ne, maxCapacity, this);
+    noroeste = new Quadtree(no, maxCapacity, this);
+    sureste = new Quadtree(se, maxCapacity, this);
+    suroeste = new Quadtree(so, maxCapacity, this);
 
-    noreste = new Quadtree(ne, maxCapacity);
-    noroeste = new Quadtree(no, maxCapacity);
-    sureste = new Quadtree(se, maxCapacity);
-    suroeste = new Quadtree(so, maxCapacity);
-
+    // pasamos los puntos a las respectivas sub areas
     for(auto& point: points){
         if(ne.containsPoint(point))
-            noreste->insert(point);
+            noreste->addPoint(point);
         else if(no.containsPoint(point))
-            noroeste->insert(point);
+            noroeste->addPoint(point);
         else if(se.containsPoint(point))
-            sureste->insert(point);
+            sureste->addPoint(point);
         else if(so.containsPoint(point))
-            suroeste->insert(point);
+            suroeste->addPoint(point);
     }
+
+    //limpiamos el nodo interno de los puntos que teniamos
     points.clear();
 }
 
+void Quadtree::join(){
+    // si tenemos sub areas
+    if(noreste){
+        //llamamos a las sub areas para que se junten
+        noreste->join();
+        noroeste->join();
+        sureste->join();
+        suroeste->join();
+        
+        // liberamos la memoria
+        delete noreste;
+        delete noroeste;
+        delete sureste;
+        delete suroeste;
+
+        noreste = noroeste = suroeste = sureste = nullptr;
+    }
+    else{
+        // si no tenemos sub areas tenemos puntos, estos los mandamos al padre
+        for(auto& point: points)
+            father->points.emplace_back(point);
+        points.clear();
+        father = nullptr;
+    }
+}
+
 void Quadtree::draw(SDL_Renderer* renderer){
+    // si no tnemos sub areas tenemos puntos los cuales dibujamos
     if(!noreste){
         for(auto& point: points)
             point.draw(renderer);
     }
     else{
+        // sino dibujamos las divisiones 
         SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
         SDL_Rect vertical{
             static_cast<int>(boundary.center.x),
             static_cast<int>(boundary.center.y - boundary.halfDimension),
             1,
-            static_cast<int>(2*boundary.halfDimension)
+            static_cast<int>(std::ceil(2*boundary.halfDimension))
         };
         SDL_RenderFillRect(renderer, &vertical);
         SDL_Rect horizontal{
             static_cast<int>(boundary.center.x - boundary.halfDimension),
             static_cast<int>(boundary.center.y),
-            static_cast<int>(2*boundary.halfDimension),
+            static_cast<int>(std::ceil(2*boundary.halfDimension)),
             1
         };
         SDL_RenderFillRect(renderer, &horizontal);
         
+        // luego dibujamos las sub areas
         noreste->draw(renderer);
         noroeste->draw(renderer);
         sureste->draw(renderer);
         suroeste->draw(renderer);
     }
+}
+
+void Quadtree::addPoint(Point p){
+    points.emplace_back(p);
+    ++size;
 }

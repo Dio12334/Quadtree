@@ -13,7 +13,8 @@
 
 Display::Display(): isRunning(false), window(nullptr), renderer(nullptr), quad(nullptr){}
 
-bool Display::initialize(int dim){
+bool Display::initialize(double dim){
+
     int sdlResult = SDL_Init(SDL_INIT_VIDEO);
     if(sdlResult != 0){
         SDL_Log("No se pudo inicializar SDL: %s", SDL_GetError());
@@ -25,8 +26,10 @@ bool Display::initialize(int dim){
     }
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     isRunning = true;
+
+    // creamos el Quadtree con las dimensiones de la ventana
     AABB boundary({dim/2, dim/2}, dim/2);
-    quad = new Quadtree(boundary);
+    quad = new Quadtree(boundary, 1 , nullptr);
     return true;
 }
 
@@ -55,7 +58,10 @@ void Display::processInputs(){
                 {
                     int x, y;
                     SDL_GetMouseState(&x, &y);
-                    quad->insert({static_cast<double>(x),static_cast<double>(y)});
+                    if(event.button.button == SDL_BUTTON_LEFT)
+                        quad->insert({static_cast<double>(x),static_cast<double>(y)});
+                    if(event.button.button == SDL_BUTTON_RIGHT)
+                        quad->remove({static_cast<double>(x),static_cast<double>(y)});
                 }
 
         }
