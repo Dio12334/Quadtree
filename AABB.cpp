@@ -8,5 +8,14 @@ bool AABB::containsPoint(Point p){
 }
 
 bool AABB::intersects(const AABB& other){
-    return (center.distanceFrom(other.center) < (halfDimension + other.halfDimension) || center.distanceFrom(other.center) < (std::sqrt(2*std::pow(halfDimension,2)) + std::sqrt(2*std::pow(other.halfDimension, 2))));
+    bool result = false;
+    AABB smallestSquare = (other.halfDimension < halfDimension)? other:*this;
+    AABB biggestSquare = (other.halfDimension > halfDimension)? other:*this;
+
+    result = result || biggestSquare.containsPoint({smallestSquare.center.x -halfDimension, smallestSquare.center.y - halfDimension});
+    result = result || biggestSquare.containsPoint({smallestSquare.center.x +halfDimension, smallestSquare.center.y - halfDimension});
+    result = result || biggestSquare.containsPoint({smallestSquare.center.x -halfDimension, smallestSquare.center.y + halfDimension});
+    result = result ||biggestSquare.containsPoint({smallestSquare.center.x +halfDimension, smallestSquare.center.y +halfDimension});
+
+    return result;
 }
