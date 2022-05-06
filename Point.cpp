@@ -1,5 +1,6 @@
 #include "Point.h"
 #include <SDL2/SDL_render.h>
+#include <cmath>
 
 Point::Point(double x, double y): x(x), y(y) {}
 
@@ -13,4 +14,8 @@ void Point::draw(SDL_Renderer* renderer){
         3*dim
     };
     SDL_RenderFillRect(renderer, &dot);
+}
+
+int Point::distanceFrom(Point other){
+    return std::sqrt(std::pow(other.x - x, 2) + std::pow(other.y - y, 2));
 }

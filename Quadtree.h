@@ -14,6 +14,8 @@ class Quadtree{
         bool remove(Point p);
         void draw(SDL_Renderer* renderer);
         void addPoint(Point p);
+        std::vector<Point> queryRange(AABB range);
+        Point getClosestPointToCenter(AABB range);
 
     private:
         

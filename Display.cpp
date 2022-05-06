@@ -49,6 +49,7 @@ void Display::shutdown(){
 
 void Display::processInputs(){
     SDL_Event event;
+    AABB mouseRange({0,0}, 4);
     while(SDL_PollEvent(&event)){
         switch(event.type){
             case SDL_QUIT:
@@ -60,8 +61,12 @@ void Display::processInputs(){
                     SDL_GetMouseState(&x, &y);
                     if(event.button.button == SDL_BUTTON_LEFT)
                         quad->insert({static_cast<double>(x),static_cast<double>(y)});
-                    if(event.button.button == SDL_BUTTON_RIGHT)
-                        quad->remove({static_cast<double>(x),static_cast<double>(y)});
+                    if(event.button.button == SDL_BUTTON_RIGHT){
+                        mouseRange.center.x = x;
+                        mouseRange.center.y = y;
+                        Point toRemove = quad->getClosestPointToCenter(mouseRange);
+                        quad->remove(toRemove);
+                    }
                 }
 
         }

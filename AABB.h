@@ -11,6 +11,7 @@ struct AABB{
 
     AABB(Point center, double halfDimension);
     bool containsPoint(Point p);
+    bool intersects(const AABB& other);
 };
 
 #endif

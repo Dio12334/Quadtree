@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cmath>
 #include <algorithm>
+#include <vector>
 
 Quadtree::Quadtree(AABB boundary, size_t maxCapacity_, Quadtree* father): 
     maxCapacity(maxCapacity_),
@@ -163,4 +164,36 @@ void Quadtree::draw(SDL_Renderer* renderer){
 void Quadtree::addPoint(Point p){
     points.emplace_back(p);
     ++size;
+}
+
+std::vector<Point> Quadtree::queryRange(AABB range){
+    std::vector<Point> pointsInRange;
+    if(!boundary.intersects(range))
+        return pointsInRange;
+    for(auto& point: points)
+        if(range.containsPoint(point))
+            pointsInRange.emplace_back(point);
+    if(!noreste)
+        return pointsInRange;
+
+    std::vector<Point> ne = noreste->queryRange(range);
+    pointsInRange.insert(pointsInRange.end(), ne.begin(), ne.end());
+    std::vector<Point> no = noroeste->queryRange(range);
+    pointsInRange.insert(pointsInRange.end(), no.begin(), no.end());
+    std::vector<Point> se = sureste->queryRange(range);
+    pointsInRange.insert(pointsInRange.end(), se.begin(), se.end());
+    std::vector<Point> so = suroeste->queryRange(range);
+    pointsInRange.insert(pointsInRange.end(), so.begin(), so.end());
+
+    return pointsInRange;
+}
+
+Point Quadtree::getClosestPointToCenter(AABB range){
+    std::vector<Point> pointsInRange = queryRange(range);
+    Point closest(100000, 100000);
+    for(auto& point: pointsInRange){
+        if(point.distanceFrom(range.center) < closest.distanceFrom(range.center))
+            closest = point;
+    }
+    return closest;
 }

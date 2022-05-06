@@ -12,6 +12,7 @@ struct Point{
     Point(double x, double y);
     void draw(SDL_Renderer* renderer);
 
+    int distanceFrom(Point other);
     friend bool operator==(const Point& left, const Point& right) {
         return left.x == right.x && left.y == right.y;
     }
