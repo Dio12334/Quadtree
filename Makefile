@@ -1,6 +1,6 @@
 objects = main.o Display.o Quadtree.o Point.o AABB.o 
 CFLAGS = -Wall -O2 
-LINKERFLAGS = -lSDL2 -lSDL2_image
+LINKERFLAGS = -lSDL2
 debugflags = -g
 CC = g++
 execname = a.out
