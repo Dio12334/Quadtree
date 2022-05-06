@@ -14,7 +14,7 @@ all: build
 debug: clean build
 
 build: $(objects)
-	$(CC) $(CFLAGS) -o $(execname) $(objects) $(LINKERFLAGS) 
+	$(CC) $(CFLAGS) -o $(execname) $(objects) $(LINKERFLAGS)
 
 %.o : %.cpp
 	$(CC) -c $(CFLAGS) $(LINKERFLAGS) $< -o $@
