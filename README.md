@@ -35,6 +35,8 @@ Para instalarlos, basta con utilizar
 pip3 install <nombre del módulo>
 ```
 
+(Cabe mencionar que `pydot` viene dentro de `matplotlib`).
+
 ### Ejecución
 
 [por completar]
