@@ -10,6 +10,7 @@
 #include <SDL2/SDL_scancode.h>
 #include <SDL2/SDL_video.h>
 #include <iostream>
+#include "QuadtreeJSON.h"
 
 Display::Display(): isRunning(false), window(nullptr), renderer(nullptr), quad(nullptr){}
 
@@ -59,13 +60,16 @@ void Display::processInputs(){
                 {
                     int x, y;
                     SDL_GetMouseState(&x, &y);
-                    if(event.button.button == SDL_BUTTON_LEFT)
+                    if(event.button.button == SDL_BUTTON_LEFT){
                         quad->insert({static_cast<double>(x),static_cast<double>(y)});
+                        makeJSON(quad);
+                    }
                     if(event.button.button == SDL_BUTTON_RIGHT){
                         mouseRange.center.x = x;
                         mouseRange.center.y = y;
                         Point toRemove = quad->getClosestPointToCenter(mouseRange);
                         quad->remove(toRemove);
+                        makeJSON(quad);
                     }
                 }
 

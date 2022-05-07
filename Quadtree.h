@@ -17,6 +17,12 @@ class Quadtree{
         std::vector<Point> queryRange(AABB range);
         Point getClosestPointToCenter(AABB range);
 
+        int getId() const { return id;}
+        Quadtree* getfather() const {return father;}
+        Quadtree* getnoreste() const {return noreste;}
+        Quadtree* getnoroeste() const {return noroeste;}
+        Quadtree* getsureste() const {return sureste;}
+        Quadtree* getsuroeste() const {return suroeste;}
     private:
         
         void subdivide();
@@ -34,6 +40,7 @@ class Quadtree{
         Quadtree* suroeste;
 
         std::vector<Point> points;
+        int id;
 };
 
 #endif

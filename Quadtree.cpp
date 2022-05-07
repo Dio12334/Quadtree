@@ -15,6 +15,8 @@ Quadtree::Quadtree(AABB boundary, size_t maxCapacity_, Quadtree* father):
     sureste(nullptr),
     suroeste(nullptr)
     {
+        static int idsetter = 0;
+        id = ++idsetter;
         points.reserve(maxCapacity);
     }
 
