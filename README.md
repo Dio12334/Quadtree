@@ -49,4 +49,4 @@ Para poder visualizar el grafo, se corre
 ```
 python3 graph.py
 ```
-Para finalizar esta visualización, terminar el proceso usando `ctrl+c`.
+Cerrar y volver a abrir con cada actualización del quadtree, pues este gráfico no se actualiza automáticamente.
