@@ -40,20 +40,21 @@
 using json = nlohmann::ordered_json;
 static int id = 0;
 
-void serialize (Quadtree* q, json &nodes, json& edges) {
+void serialize (Quadtree* q, json &nodes, json& edges, int father = id) {
     if (!q) return;
-    nodes += {{"id", 0}};
+    if(!q->getfather())
+        nodes += {{"id", id}};
     if (q->getnoreste()) {
-        for(int i = id+1; i <= id+3; i++) {
+        for(int i = id+1; i <= id+4; i++) {
             nodes += {{"id", i}};
-            edges += {{"source", id}, {"target", i}};
+            edges += {{"source", father}, {"target", i}};
         }
         id += 4;
     }
-    serialize(q->getnoreste(), nodes, edges);
-    serialize(q->getnoroeste(), nodes, edges);
-    serialize(q->getsureste(), nodes, edges);
-    serialize(q->getsuroeste(), nodes, edges);
+    serialize(q->getnoreste(), nodes, edges, father+1 );
+    serialize(q->getnoroeste(), nodes, edges, father +2);
+    serialize(q->getsureste(), nodes, edges, father +3);
+    serialize(q->getsuroeste(), nodes, edges, father +4);
 }
 
 void makeJSON (Quadtree* q) {

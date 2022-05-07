@@ -16,14 +16,13 @@ def read_json(filename):
         js_graph = json.load(f)
     return json_graph.node_link_graph(js_graph)
 
-try:
-    while(True):
-        T = read_json("grafo.json")
-        pos = graphviz_layout(T, prog="dot")
-        nx.draw(T, pos)
-        plt.show
-        plt.pause(0.001)
-        plt.clf()
+#try:
+T = read_json("grafo.json")
+pos = graphviz_layout(T, prog="dot")
+nx.draw(T, pos)
+plt.show()
+    #plt.pause(0.001)
+    #plt.clf()
         
-except KeyboardInterrupt:
-    pass
+#except KeyboardInterrupt:
+#    pass
