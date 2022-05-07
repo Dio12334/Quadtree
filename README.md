@@ -37,6 +37,12 @@ pip3 install <nombre del módulo>
 
 (Cabe mencionar que `pydot` viene dentro de `matplotlib`).
 
+Respecto a dependencias del mismo sistema operativo, se requiere tener instalado `graphviz`, lo que se hace con
+
+```
+sudo apt-get install graphviz
+```
+
 ### Ejecución
 
 [por completar]
