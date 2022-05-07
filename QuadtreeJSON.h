@@ -43,7 +43,7 @@ static int id = 0;
 void serialize (Quadtree* q, json &nodes, json& edges) {
     if (!q) return;
     if (q->getnoreste()) {
-        for(int i = id; i <= id+3; i++) {
+        for(int i = id+1; i <= id+3; i++) {
             nodes += {{"id", i}};
             edges += {{"source", id}, {"target", i}};
         }
@@ -57,7 +57,7 @@ void serialize (Quadtree* q, json &nodes, json& edges) {
 
 void makeJSON (Quadtree* q) {
     json nodes, edges, j;
-    nodes = json::array({});
+    nodes = json::array({{{"id", 0}}});
     edges = json::array({});
     serialize(q, nodes, edges);
     j = json{{"directed", false}, {"multigraph", false}, {"graph", json({})}, {"nodes", nodes}, {"links", edges}};
