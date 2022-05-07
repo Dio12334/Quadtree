@@ -45,4 +45,8 @@ sudo apt-get install graphviz
 
 ### Ejecución
 
-[por completar]
+Para poder visualizar el grafo, se corre
+```
+python3 graph.py
+```
+Para finalizar esta visualización, terminar el proceso usando `ctrl+c`.
