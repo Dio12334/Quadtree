@@ -32,10 +32,11 @@ bool Quadtree::insert(Point p){
         ++size;
         return true;
     }
-    if(points.size() == maxCapacity){
+    if(points.size() == maxCapacity && !noreste){
         //Chequeamos que el punto no a sido insertado antes
         if(std::find(points.cbegin(), points.cend(), p) != points.cend())       
             return false;
+        boundary.dividingPoint = points[0];
     }
     if(!noreste)
         // si el area ya esta llena de puntos particionamos esa area
@@ -74,15 +75,16 @@ bool Quadtree::remove(Point p){
 }
 
 void Quadtree::subdivide(){
-    double centerX = boundary.center.x, centerY = boundary.center.y;
-    double halfDimension = boundary.halfDimension;
+    Point center = boundary.center;
+    Point div = boundary.dividingPoint;
+    Point distance = div - center;
+    double totalX = boundary.totalX, totalY = boundary.totalY;
 
     // creamos las 4 sub areas
-    AABB ne({centerX + halfDimension/2, centerY - halfDimension/2}, halfDimension/2);
-    AABB no({centerX - halfDimension/2, centerY - halfDimension/2}, halfDimension/2);
-    AABB se({centerX + halfDimension/2, centerY + halfDimension/2}, halfDimension/2);
-    AABB so({centerX - halfDimension/2, centerY + halfDimension/2}, halfDimension/2);
-    
+    AABB ne({div.x + (totalX/2 - distance.x)/2, div.y - (totalY/2 + distance.y)/2}, totalX/2 - distance.x, totalY/2 + distance.y);
+    AABB no({div.x - (totalX/2 + distance.x)/2, div.y - (totalY/2 + distance.y)/2}, totalX/2 + distance.x, totalY/2 + distance.y);
+    AABB se({div.x + (totalX/2 - distance.x)/2, div.y + (totalY/2 - distance.y)/2}, totalX/2 - distance.x, totalY/2 - distance.y);
+    AABB so({div.x - (totalX/2 + distance.x)/2, div.y + (totalY/2 - distance.y)/2}, totalX/2 + distance.x, totalY/2 - distance.y);
     // las agregamos al quadtree
     noreste = new Quadtree(ne, maxCapacity, this);
     noroeste = new Quadtree(no, maxCapacity, this);
@@ -91,18 +93,19 @@ void Quadtree::subdivide(){
 
     // pasamos los puntos a las respectivas sub areas
     for(auto& point: points){
-        if(ne.containsPoint(point))
+        if(ne.containsPoint(point)&& !(point == div))
             noreste->addPoint(point);
-        else if(no.containsPoint(point))
+        else if(no.containsPoint(point)&& !(point == div))
             noroeste->addPoint(point);
-        else if(se.containsPoint(point))
+        else if(se.containsPoint(point)&& !(point == div))
             sureste->addPoint(point);
-        else if(so.containsPoint(point))
+        else if(so.containsPoint(point)&& !(point == div))
             suroeste->addPoint(point);
     }
 
     //limpiamos el nodo interno de los puntos que teniamos
     points.clear();
+    points.emplace_back(div);
 }
 
 void Quadtree::join(){
@@ -141,16 +144,16 @@ void Quadtree::draw(SDL_Renderer* renderer){
         // sino dibujamos las divisiones 
         SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
         SDL_Rect vertical{
-            static_cast<int>(boundary.center.x),
-            static_cast<int>(boundary.center.y - boundary.halfDimension),
+            static_cast<int>(boundary.dividingPoint.x),
+            static_cast<int>(boundary.center.y - boundary.totalY/2),
             1,
-            static_cast<int>(std::ceil(2*boundary.halfDimension))
+            static_cast<int>(std::ceil(boundary.totalY))
         };
         SDL_RenderFillRect(renderer, &vertical);
         SDL_Rect horizontal{
-            static_cast<int>(boundary.center.x - boundary.halfDimension),
-            static_cast<int>(boundary.center.y),
-            static_cast<int>(std::ceil(2*boundary.halfDimension)),
+            static_cast<int>(boundary.center.x - boundary.totalX/2),
+            static_cast<int>(boundary.dividingPoint.y),
+            static_cast<int>(std::ceil(boundary.totalX)),
             1
         };
         SDL_RenderFillRect(renderer, &horizontal);
@@ -160,6 +163,8 @@ void Quadtree::draw(SDL_Renderer* renderer){
         noroeste->draw(renderer);
         sureste->draw(renderer);
         suroeste->draw(renderer);
+
+        points[0].draw(renderer);
     }
 }
 

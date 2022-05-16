@@ -29,7 +29,7 @@ bool Display::initialize(double dim){
     isRunning = true;
 
     // creamos el Quadtree con las dimensiones de la ventana
-    AABB boundary({dim/2, dim/2}, dim/2);
+    AABB boundary({dim/2, dim/2}, dim, dim);
     quad = new Quadtree(boundary, 1 , nullptr);
     return true;
 }

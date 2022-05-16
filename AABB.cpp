@@ -3,8 +3,12 @@
 
 AABB::AABB(Point center, double halfDimension): center(center), halfDimension(halfDimension){}
 
+AABB::AABB(Point center, double totalX, double totalY): center(center), dividingPoint(0, 0), totalX(totalX), totalY(totalY), halfDimension(0){
+    
+}
+
 bool AABB::containsPoint(Point p){
-    return ((p.x >= center.x - halfDimension)&&(p.x <= center.x + halfDimension)&&(p.y >= center.y - halfDimension)&&(p.y <= center.y + halfDimension));
+    return ((p.x >= center.x - totalX/2)&&(p.x <= center.x + totalX/2)&&(p.y >= center.y - totalY/2)&&(p.y <= center.y + totalY/2));
 }
 
 bool AABB::intersects(const AABB& other){
